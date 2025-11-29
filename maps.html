@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>मानचित्र — बिहार वर्षा</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner container">
+      <img src="assets/logo.png" class="logo" alt="logo">
+      <div class="brand-title">बिहार वर्षा विश्लेषण</div>
+      <div class="nav-links">
+        <a href="index.html">होम</a>
+        <a href="dashboard.html">डैशबोर्ड</a>
+        <a href="districts.html">जिलावार</a>
+        <a href="maps.html" class="active">मानचित्र</a>
+        <a href="top10.html">शीर्ष 10 जिले</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top:22px">
+    <section class="panel">
+      <h3 style="margin:0;color:var(--teal-2)">मानचित्र गैलरी</h3>
+      <p style="color:var(--muted);margin:6px 0 12px 0">QGIS से export किए गए मानचित्र देखें ।</p>
+
+      <div style="position:relative;">
+        <div class="map-slide panel">
+          <img id="mapImage" src="maps/june_map.png" alt="map" />
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+          <button class="month-btn active" data-src="maps/june_map.png">June</button>
+          <button class="month-btn" data-src="maps/july_map.png">July</button>
+          <button class="month-btn" data-src="maps/aug_map.png">Aug</button>
+          <button class="month-btn" data-src="maps/sep_map.png">Sep</button>
+          <button class="month-btn" data-src="maps/monsoon_overall_map.png">Overall</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:18px;text-align:center;color:var(--muted);">
+    Data Source: IMD MC Patna (Official Rainfall Records) · Analysis Prepared By: © Lal Kamal
+  </footer>
+
+  <script>
+    (() => {
+      const btns = document.querySelectorAll('.month-btn');
+      const img = document.getElementById('mapImage');
+      let timer = null;
+      btns.forEach(b => b.addEventListener('click', () => {
+        btns.forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        img.src = b.dataset.src;
+      }));
+      // autoplay
+      let i=0; const arr = Array.from(btns);
+      function next(){ i=(i+1)%arr.length; arr[i].click(); }
+      timer = setInterval(next, 3500);
+      img.addEventListener('mouseenter', ()=> clearInterval(timer));
+      img.addEventListener('mouseleave', ()=> timer = setInterval(next,3500));
+    })();
+  </script>
+</body>
+</html>

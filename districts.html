@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>जिलावार तालिका — बिहार वर्षा</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner container">
+      <img src="assets/logo.png" class="logo" alt="logo">
+      <div class="brand-title">बिहार वर्षा विश्लेषण</div>
+      <div class="nav-links">
+        <a href="index.html">होम</a>
+        <a href="dashboard.html">डैशबोर्ड</a>
+        <a href="districts.html" class="active">जिलावार</a>
+        <a href="maps.html">मानचित्र</a>
+        <a href="top10.html">शीर्ष 10 जिले</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top:22px;">
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <h3 style="margin:0;color:var(--teal-2)">विस्तृत जिलावार तालिका</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="selectMonth" class="input" style="min-width:180px">
+            <option value="june.csv">June</option>
+            <option value="july.csv">July</option>
+            <option value="august.csv">August</option>
+            <option value="september.csv">September</option>
+            <option value="overall_monsoon.csv">Monsoon Overall</option>
+          </select>
+          <input id="searchBox" class="input" placeholder="जिला खोजें...">
+          <button id="exportAll" class="btn">Export</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;overflow:auto;">
+        <table class="table">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="pager" style="margin-top:12px" id="pager"></div>
+    </section>
+  </main>
+
+  <footer style="padding:18px;text-align:center;color:var(--muted);">
+    Data Source: IMD MC Patna (Official Rainfall Records) · Analysis Prepared By: © Lal Kamal
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (async function(){
+      const sel = document.getElementById('selectMonth');
+      const search = document.getElementById('searchBox');
+      const head = document.getElementById('tableHead');
+      const body = document.getElementById('tableBody');
+      const pager = document.getElementById('pager');
+      let tableObj = null;
+
+      async function load(monthFile){
+        const parsed = await window.__utils.fetchCSV(monthFile);
+        head.innerHTML = '<tr>' + parsed.headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        tableObj = new window.__utils.DistrictTable({container: body, headers: parsed.headers, data: parsed.data, perPage: 15});
+        tableObj.renderPage();
+        renderPager();
+      }
+
+      function renderPager(){
+        if(!tableObj) return;
+        const total = tableObj.filtered.length;
+        const per = tableObj.perPage;
+        const max = Math.ceil(total/per)||1;
+        pager.innerHTML = '';
+        const prev = document.createElement('button'); prev.textContent='‹'; prev.onclick = ()=>{ tableObj.goToPage(tableObj.page-1); renderPager();}
+        const next = document.createElement('button'); next.textContent='›'; next.onclick = ()=>{ tableObj.goToPage(tableObj.page+1); renderPager();}
+        const info = document.createElement('span'); info.textContent = `पेज ${tableObj.page} / ${max}`;
+        pager.appendChild(prev); pager.appendChild(info); pager.appendChild(next);
+      }
+
+      sel.addEventListener('change', ()=> load(sel.value));
+      search.addEventListener('input', (e)=> { if(tableObj) tableObj.filter(e.target.value); renderPager(); });
+      document.getElementById('exportAll').addEventListener('click', ()=> tableObj && tableObj.exportCSV(`export_${sel.value}`));
+
+      // initial
+      await load(sel.value);
+    })();
+  </script>
+</body>
+</html>

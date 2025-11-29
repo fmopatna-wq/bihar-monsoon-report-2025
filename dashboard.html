@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>डैशबोर्ड — बिहार वर्षा विश्लेषण</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner container">
+      <img src="assets/logo.png" class="logo" alt="logo">
+      <div class="brand-title">बिहार वर्षा विश्लेषण</div>
+      <div class="nav-links">
+        <a href="index.html">होम</a>
+        <a href="dashboard.html" class="active">डैशबोर्ड</a>
+        <a href="districts.html">जिलावार</a>
+        <a href="maps.html">मानचित्र</a>
+        <a href="top10.html">शीर्ष 10 जिले</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top:22px;">
+    <section class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0;color:var(--teal-2)">मासिक वर्षा विश्लेषण</h2>
+          <p style="margin:6px 0 0;color:var(--muted)">जून — सितंबर तथा समग्र मानसून (Jun–Sep) के लिए डेटा चुनें।</p>
+        </div>
+        <div class="month-tabs" role="tablist" aria-label="Months">
+          <button class="month-btn active" data-file="june.csv">जून 2025</button>
+          <button class="month-btn" data-file="july.csv">जुलाई 2025</button>
+          <button class="month-btn" data-file="august.csv">अगस्त 2025</button>
+          <button class="month-btn" data-file="september.csv">सितंबर 2025</button>
+          <button class="month-btn" data-file="overall_monsoon.csv">Monsoon Overall</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top:18px;">
+      <div class="col-8">
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;color:var(--teal-2)">विस्तृत जिलावार तालिका</h3>
+            <div class="table-toolbar">
+              <div class="search">
+                <input id="dashSearch" class="input" placeholder="जिला खोजें..." />
+                <button id="exportBtn" class="btn">एक्सपोर्ट</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;overflow:auto;">
+            <table class="table" aria-live="polite">
+              <thead id="dashTableHead"></thead>
+              <tbody id="dashTableBody"></tbody>
+            </table>
+            <div class="pager" id="dashPager"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-4">
+        <div class="panel cards">
+          <div class="card">
+            <h3 id="cardAvg">—</h3>
+            <p>औसत वर्षा (मिमी)</p>
+          </div>
+          <div class="card alt">
+            <h3 id="cardDep">—</h3>
+            <p>औसत विचलन (%)</p>
+          </div>
+          <div class="card" style="background:linear-gradient(90deg,#1e6d73,#0e5b62);">
+            <h3 id="cardCount">—</h3>
+            <p>कुल जिले</p>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px">
+          <h4 style="margin:0 0 8px 0;color:var(--teal-2)">Top 10 — कुल वर्षा के आधार पर</h4>
+          <div class="chart-wrap">
+            <canvas id="topChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:18px;text-align:center;color:var(--muted);">
+    Data Source: IMD MC Patna (Official Rainfall Records) · Analysis Prepared By: © Lal Kamal
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (async function(){
+      const monthBtns = document.querySelectorAll('.month-btn');
+      let currentFile = 'june.csv';
+
+      // init table structures
+      const dashHead = document.getElementById('dashTableHead');
+      const dashBody = document.getElementById('dashTableBody');
+      const dashPager = document.getElementById('dashPager');
+      let tableInstance = null;
+
+      async function loadAndRender(file){
+        try {
+          // update active btn
+          monthBtns.forEach(b=>b.classList.toggle('active', b.dataset.file===file));
+          currentFile = file;
+
+          // fetch CSV
+          const parsed = await window.__utils.fetchCSV(file);
+          const headers = parsed.headers;
+          const data = parsed.data;
+
+          // summary
+          const sum = window.__utils.computeSummary(data);
+          document.getElementById('cardAvg').textContent = sum.avgTotal ? Math.round(sum.avgTotal) + ' मिमी' : '—';
+          document.getElementById('cardDep').textContent = sum.avgDeparture ? Math.round(sum.avgDeparture) + ' %' : '—';
+          document.getElementById('cardCount').textContent = sum.districtCount || data.length;
+
+          // render table header
+          dashHead.innerHTML = '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+
+          // create DistrictTable instance
+          tableInstance = new window.__utils.DistrictTable({
+            container: dashBody,
+            headers,
+            data,
+            perPage: 12
+          });
+          tableInstance.renderPage();
+          // pager controls
+          renderPager();
+
+          // top chart
+          const ctx = document.getElementById('topChart');
+          await window.__utils.renderTop10Chart(file, ctx, headers[1]);
+
+        } catch(err){
+          dashBody.innerHTML = `<tr><td colspan="6">Error loading data: ${err.message}</td></tr>`;
+          console.error(err);
+        }
+      }
+
+      function renderPager(){
+        const total = tableInstance.filtered.length;
+        const per = tableInstance.perPage;
+        const max = Math.ceil(total/per) || 1;
+        dashPager.innerHTML = '';
+        const left = document.createElement('div');
+        left.style.marginRight='auto';
+        // prev
+        const prev = document.createElement('button'); prev.textContent='‹'; prev.onclick = ()=>{ tableInstance.goToPage(tableInstance.page-1); renderPager();}
+        const next = document.createElement('button'); next.textContent='›'; next.onclick = ()=>{ tableInstance.goToPage(tableInstance.page+1); renderPager();}
+        dashPager.appendChild(prev);
+        const info = document.createElement('span'); info.style.margin='0 8px'; info.textContent = `पेज ${tableInstance.page} / ${max}`;
+        dashPager.appendChild(info);
+        dashPager.appendChild(next);
+      }
+
+      // events
+      monthBtns.forEach(b=> b.addEventListener('click', ()=> loadAndRender(b.dataset.file)));
+      document.getElementById('dashSearch').addEventListener('input', (e)=> {
+        if(tableInstance) tableInstance.filter(e.target.value);
+        renderPager();
+      });
+      document.getElementById('exportBtn').addEventListener('click', ()=> {
+        if(tableInstance) tableInstance.exportCSV(`export_${currentFile}`);
+      });
+
+      // initial load
+      await loadAndRender(currentFile);
+    })();
+  </script>
+</body>
+</html>

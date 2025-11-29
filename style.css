@@ -1,0 +1,195 @@
+/* style.css
+   Theme: Teal/Deep-Teal + Blue accents (Hero, Cards, Tables)
+   Responsive, modern, Hindi-ready (Noto Sans Devanagari fallback)
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Noto+Sans+Devanagari:wght@300;400;700&display=swap');
+
+:root{
+  --bg:#f3f7f8;
+  --card:#ffffff;
+  --text:#12343b;
+  --muted:#6c7a80;
+  --teal-1:#0E7490;
+  --teal-2:#155E75;
+  --accent:#3B82F6;
+  --glass: rgba(255,255,255,0.78);
+  --radius:14px;
+  --shadow: 0 8px 28px rgba(12,22,25,0.08);
+}
+
+/* global */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: "Poppins", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(180deg,#f7fafb 0%, #eef6f7 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+
+a{color:inherit;text-decoration:none}
+.container{max-width:1180px;margin:0 auto;padding:28px}
+
+/* NAV */
+.site-nav{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg, rgba(14,116,144,0.08), transparent);
+  backdrop-filter: blur(4px);
+  border-bottom:1px solid rgba(18,52,59,0.03);
+}
+.site-nav .nav-inner{display:flex;align-items:center;gap:18px;padding:12px 24px;}
+.logo{height:42px;margin-right:6px}
+.brand-title{font-weight:700;color:var(--teal-2);font-size:1.05rem}
+.nav-links{margin-left:auto;display:flex;gap:14px;align-items:center}
+.nav-links a{padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600}
+.nav-links a.active{background:rgba(59,130,246,0.08);color:var(--accent)}
+
+/* HERO (index.html) */
+.hero {
+    height: 420px;
+    background: url("assets/background.png") center/cover no-repeat; /* आपका नया background */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+/* Optional: Dark overlay so text is clearly visible */
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45); 
+}
+
+.hero-inner {
+    position: relative;
+    z-index: 2;
+}
+
+.hero::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(5,40,42,0.75), rgba(12,63,72,0.6));
+}
+.hero .hero-inner{
+  position:relative;color:white;text-align:center;z-index:2;
+  max-width:960px;padding:24px;
+}
+.hero h1{font-size:2.6rem;margin:0 0 8px;line-height:1.05;font-weight:700}
+.hero p{margin:0 0 18px;color:rgba(255,255,255,0.9);font-size:1.05rem}
+.hero .cta{display:inline-flex;gap:10px}
+.btn{
+  padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
+  box-shadow:0 6px 18px rgba(11,56,64,0.12);
+}
+.btn-primary{background:linear-gradient(90deg,var(--teal-1),var(--teal-2));color:white}
+.btn-outline{background:transparent;border:2px solid rgba(255,255,255,0.18);color:white}
+
+/* Dashboard layout */
+.grid{display:grid;grid-template-columns: repeat(12,1fr);gap:18px;align-items:start}
+.col-4{grid-column:span 4}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+
+.panel{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;
+}
+
+/* month tabs row */
+.month-tabs{display:flex;gap:12px;padding:12px 6px;background:transparent;border-radius:12px}
+.month-btn{
+  background:transparent;border:1px solid rgba(6,30,32,0.06);padding:10px 14px;border-radius:12px;font-weight:700;
+  cursor:pointer;color:var(--muted)
+}
+.month-btn.active{background:linear-gradient(90deg,var(--teal-1),var(--teal-2));color:white;box-shadow:0 6px 20px rgba(14,116,144,0.18)}
+
+/* summary cards */
+.cards{display:flex;gap:14px;flex-wrap:wrap}
+.card{flex:1;min-width:180px;padding:18px;border-radius:12px;color:white;background:linear-gradient(90deg,var(--teal-1),var(--teal-2));position:relative;overflow:hidden}
+.card h3{margin:0;font-size:1.25rem}
+.card p{margin:6px 0 0;color:rgba(255,255,255,0.9)}
+
+/* alternative card style for neutral */
+.card.alt{background:linear-gradient(90deg,#3b82f6,#60a5fa);color:white}
+
+/* table style (districts) */
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.table-toolbar .search{display:flex;gap:8px}
+.input{padding:9px 12px;border-radius:10px;border:1px solid #e6eef0;min-width:220px}
+
+/* fancy table */
+.table{width:100%;border-collapse:collapse;background:transparent}
+.table thead th{background:linear-gradient(90deg, rgba(6,30,32,0.05), rgba(6,30,32,0.02));padding:12px;border-bottom:1px solid rgba(0,0,0,0.04);text-align:left;font-weight:700;color:var(--teal-2)}
+.table tbody td{padding:12px;border-bottom:1px solid #f1f5f6;color:var(--text)}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;font-weight:700;font-size:0.85rem}
+.badge.low{background:#ffedd5;color:#b45309}
+.badge.norm{background:#fef3c7;color:#92400e}
+.badge.high{background:#dcfce7;color:#065f46}
+
+/* pagination */
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px}
+.pager button{padding:8px 10px;border-radius:8px;border:1px solid #e6eef0;background:white;cursor:pointer}
+
+/* charts area */
+.chart-wrap{height:420px;padding:12px}
+
+/* maps gallery */
+.map-slide{position:relative}
+.map-slide img{width:100%;height:420px;object-fit:cover;border-radius:10px;display:block}
+
+/* responsive */
+@media (max-width:900px){
+  .col-8,.col-4{grid-column:span 12}
+  .hero h1{font-size:1.8rem}
+  .chart-wrap{height:260px}
+}
+
+/* Map Container Stylish Fit */
+.map-slide {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 0;
+    margin: 0;
+}
+
+.map-slide img {
+    width: 100%;
+    height: auto;              /* बेहतर responsive fit */
+    display: block;
+    border-radius: 16px;
+    object-fit: contain;        /* पूरी image कटे बिना फिट */
+    transition: transform .35s ease, box-shadow .35s ease;
+}
+
+/* Hover Zoom Effect */
+.map-slide img:hover {
+    transform: scale(1.04);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* Month buttons */
+.month-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #e8eff0;
+    color: #004b4a;
+    cursor: pointer;
+    font-size: 14px;
+    transition: .3s ease;
+}
+
+.month-btn:hover {
+    background: #d7e7e8;
+}
+
+.month-btn.active {
+    background: var(--teal-1);
+    color: white;
+}

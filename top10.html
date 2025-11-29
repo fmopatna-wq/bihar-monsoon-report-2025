@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>शीर्ष 10 जिले — बिहार वर्षा</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner container">
+      <img src="assets/logo.png" class="logo" alt="logo">
+      <div class="brand-title">बिहार वर्षा विश्लेषण</div>
+      <div class="nav-links">
+        <a href="index.html">होम</a>
+        <a href="dashboard.html">डैशबोर्ड</a>
+        <a href="districts.html">जिलावार</a>
+        <a href="maps.html">मानचित्र</a>
+        <a href="top10.html" class="active">शीर्ष 10 जिले</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top:22px">
+    <section class="panel">
+      <h3 style="margin:0 0 8px 0;color:var(--teal-2)">शीर्ष 10 जिले — कुल वर्षा के आधार पर</h3>
+      <p style="color:var(--muted);margin:0 0 12px 0">सबसे अधिक वर्षा वाले जिलों की तुलना</p>
+      <div style="display:flex;gap:12px;align-items:center">
+        <select id="topSelect" class="input">
+          <option value="overall_monsoon.csv">Monsoon Overall (Jun–Sep)</option>
+          <option value="june.csv">June</option>
+          <option value="july.csv">July</option>
+          <option value="august.csv">August</option>
+          <option value="september.csv">September</option>
+        </select>
+        <button id="refreshTop" class="btn">Refresh</button>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <canvas id="top10Canvas" style="width:100%;height:420px"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:18px;text-align:center;color:var(--muted);">
+    Data Source: IMD MC Patna (Official Rainfall Records) · Analysis Prepared By: © Lal Kamal
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (async () => {
+      const sel = document.getElementById('topSelect');
+      const canvas = document.getElementById('top10Canvas');
+      async function go(){
+        await window.__utils.renderTop10Chart(sel.value, canvas);
+      }
+      document.getElementById('refreshTop').addEventListener('click', go);
+      await go();
+    })();
+  </script>
+</body>
+</html>
